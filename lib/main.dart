@@ -36,18 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(),
       body:Container(
-        child: Column(
-          children: [
-            Center(
-              child: Text(
-                'XXXX'
-              ),
-            ),
-            Container(
-              child: Text('KKK'),
-            ),
-          ],
-        ),
+        
       ),
     );
   }

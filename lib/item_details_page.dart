@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shop/constants.dart';
+import 'package:shop/item_basket_page.dart';
 
+// ignore: must_be_immutable
 class ItemDetailsPage extends StatefulWidget {
   int productNo;
   String productName;
@@ -72,7 +74,12 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(20),
         child: FilledButton(
-          onPressed: () {},
+          onPressed: () {
+            // 장바구니로 이동
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return ItemBasketPage();
+            }));
+          },
           child: const Text('장바구니 담기'),
         ),
       ),

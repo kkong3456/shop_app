@@ -33,6 +33,8 @@ class _ItemCheckoutPageState extends State<ItemCheckoutPage> {
 
   double totalPrice = 0;
 
+  final formKey = GlobalKey<FormState>();
+
   // controller 변수추가
   TextEditingController buyerNameController = TextEditingController();
   TextEditingController buyerEmailController = TextEditingController();
@@ -48,6 +50,15 @@ class _ItemCheckoutPageState extends State<ItemCheckoutPage> {
   TextEditingController cardAuthController = TextEditingController();
   TextEditingController cardExpiredDateController = TextEditingController();
   TextEditingController cardPwdTowDigitsController = TextEditingController();
+  TextEditingController depositNameController = TextEditingController();
+
+  final List<String> paymentMethodList = [
+    '결제수단선택',
+    '카드결제',
+    '무통장입금',
+  ];
+
+  String selectedPaymentMethod = '결제수단선택';
 
   @override
   void initState() {
@@ -84,69 +95,78 @@ class _ItemCheckoutPageState extends State<ItemCheckoutPage> {
                 );
               },
             ),
-            textEditFormField(
-              controller: buyerNameController,
-              hintText: '주문자명',
+            inputTextField(
+              currentController: buyerNameController,
+              currentHintText: '주문자명',
             ),
-            textEditFormField(
-              controller: buyerEmailController,
-              hintText: '주문자 이메일',
+            inputTextField(
+              currentController: buyerEmailController,
+              currentHintText: '주문자 이메일',
             ),
-            textEditFormField(
-              controller: buyerPhoneController,
-              hintText: '주문자 전화번호',
+            inputTextField(
+              currentController: buyerPhoneController,
+              currentHintText: '주문자 휴대전화',
             ),
-            textEditFormField(
-              controller: receiverNameController,
-              hintText: '받는 사람명',
+            inputTextField(
+              currentController: receiverNameController,
+              currentHintText: '받는 사람명',
             ),
-            textEditFormField(
-              controller: receiverPhoneController,
-              hintText: '받는 사람 전화번호',
+            inputTextField(
+              currentController: receiverPhoneController,
+              currentHintText: '받는 사람 휴대전화',
             ),
             ReceiverZipTextField(
               controller: receiverZipController,
-              hintText: '우편번호',
               addrController: receiverAddress1Controller,
+              hintText: '우편번호(주민등록번호)',
             ),
-            textEditFormField(
-              controller: receiverAddress1Controller,
-              hintText: '주소 1',
+            inputTextField(
+              currentController: receiverAddress1Controller,
+              currentHintText: '기본 주소',
             ),
-            textEditFormField(
-              controller: receiverAddress2Controller,
-              hintText: '주소 2',
+            inputTextField(
+              currentController: receiverAddress2Controller,
+              currentHintText: '상세 주소',
             ),
-            textEditFormField(
-              controller: userPwdController,
-              hintText: '사용자 비밀번호',
-              maxLength: 10,
+            inputTextField(
+              currentController: userPwdController,
+              currentHintText: '비회원 주문조회 비밀번호',
             ),
-            textEditFormField(
-              controller: userConfirmPwdController,
-              hintText: '사용자 비밀번호 확인',
-              obscureOk: true,
-              maxLength: 10,
+            inputTextField(
+              currentController: userConfirmPwdController,
+              currentHintText: '비회원 주문조회 비밀번호 확인',
+              isObscure: true,
             ),
-            textEditFormField(
-              controller: cardNoController,
-              hintText: '카드 번호',
-            ),
-            textEditFormField(
-              controller: cardAuthController,
-              hintText: '카드 인증번호',
-              obscureOk: true,
-            ),
-            textEditFormField(
-              controller: cardExpiredDateController,
-              hintText: '카드 만료일',
-            ),
-            textEditFormField(
-              controller: cardPwdTowDigitsController,
-              hintText: '카드 비밀번호 입력하기',
-              obscureOk: true,
-              maxLength: 4,
-            ),
+            paymentMethodDropdownButton(),
+            if (selectedPaymentMethod == '카드결제')
+              Column(
+                children: [
+                  inputTextField(
+                    currentController: cardNoController,
+                    currentHintText: '카드 번호',
+                  ),
+                  inputTextField(
+                    currentController: cardAuthController,
+                    currentHintText: '카드명의자 주민번호 앞자리 또는 사업자번호',
+                    currentMaxLength: 10,
+                  ),
+                  inputTextField(
+                    currentController: cardExpiredDateController,
+                    currentHintText: '카드 만료일(YYYYMM)',
+                    currentMaxLength: 6,
+                  ),
+                  inputTextField(
+                    currentController: cardPwdTowDigitsController,
+                    currentHintText: '카드 비밀번호 앞2자리',
+                    currentMaxLength: 2,
+                  ),
+                ],
+              ),
+            if (selectedPaymentMethod == '무통장입금')
+              inputTextField(
+                currentController: depositNameController,
+                currentHintText: '입금자명',
+              ),
           ],
         ),
       ),
@@ -211,16 +231,66 @@ class _ItemCheckoutPageState extends State<ItemCheckoutPage> {
     );
   }
 
-  // Widget buyerNameTextField() {
-  //   return Padding(
-  //     padding: const EdgeInsets.all(8.0),
-  //     child: TextFormField(
-  //       controller: buyerNameController,
-  //       decoration: const InputDecoration(
-  //           border: OutlineInputBorder(), hintText: '주문자명'),
-  //     ),
-  //   );
-  // }
+  Widget inputTextField({
+    required TextEditingController currentController,
+    required String currentHintText,
+    int? currentMaxLength,
+    bool isObscure = false,
+    bool isReadOnly = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return '내용을 입력해주세요';
+          } else {
+            if (currentController == userConfirmPwdController &&
+                userPwdController.text != userConfirmPwdController.text) {
+              return '비밀번호가 일치하지 않습니다';
+            }
+          }
+          return null;
+        },
+        controller: currentController,
+        readOnly: isReadOnly,
+        maxLength: currentMaxLength,
+        obscureText: isObscure,
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          hintText: currentHintText,
+        ),
+      ),
+    );
+  }
+
+  Widget paymentMethodDropdownButton() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(width: .5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: DropdownButton<String>(
+        value: selectedPaymentMethod,
+        onChanged: (value) {
+          setState(() {
+            selectedPaymentMethod = value ?? '';
+          });
+        },
+        isExpanded: true,
+        underline: Container(),
+        items: paymentMethodList.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),
+    );
+  }
 }
 
 // ignore: camel_case_types, must_be_immutable
@@ -261,7 +331,7 @@ class ReceiverZipTextField extends StatelessWidget {
   final TextEditingController addrController;
   final String hintText;
 
-  const ReceiverZipTextField({
+  ReceiverZipTextField({
     Key? key,
     required this.controller,
     required this.addrController,

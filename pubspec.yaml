@@ -33,6 +33,7 @@ dependencies:
   cached_network_image:
   intl:
   kpostal:
+  logger:
 
 
   # The following adds the Cupertino Icons font to your application.

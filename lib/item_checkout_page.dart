@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/web.dart';
 import 'package:shop/components/basic_dialog.dart';
 import 'package:shop/constants.dart';
+import 'package:shop/item_order_result_page.dart';
 import 'package:shop/models/product.dart';
 import 'package:kpostal/kpostal.dart';
 
@@ -12,6 +14,8 @@ class ItemCheckoutPage extends StatefulWidget {
 }
 
 class _ItemCheckoutPageState extends State<ItemCheckoutPage> {
+  var logger = Logger();
+
   List<Product> checkoutList = [
     Product(
       productNo: 1,
@@ -182,17 +186,37 @@ class _ItemCheckoutPageState extends State<ItemCheckoutPage> {
         padding: const EdgeInsets.all(20),
         child: FilledButton(
           onPressed: () {
-            showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (context) {
-                return BasicDialog(
-                  content: '결제수단을 선택해 주세요',
-                  buttonText: '닫기',
-                  buttonFuction: () => Navigator.of(context).pop(),
-                );
-              },
+            // if (formKey.currentState!.validate()) {
+            //   if (selectedPaymentMethod == '결제수단선택') {
+            //     showDialog(
+            //       context: context,
+            //       barrierDismissible: true,
+            //       builder: (context) {
+            //         return BasicDialog(
+            //           content: '결제수단을 선택해 주세요',
+            //           buttonText: '닫기',
+            //           buttonFuction: () => Navigator.of(context).pop(),
+            //         );
+            //       },
+            //     );
+            //   }
+            //   return;
+            // }
+            logger.d('start');
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ItemOrderResultPage(
+                  paymentMethod: selectedPaymentMethod,
+                  paymentAmount: totalPrice,
+                  receiverName: buyerNameController.text,
+                  receiverPhone: buyerPhoneController.text,
+                  zip: receiverZipController.text,
+                  address1: receiverAddress1Controller.text,
+                  address2: receiverAddress2Controller.text,
+                ),
+              ),
             );
+            logger.d('end');
           },
           child: Text('총 ${numberFormat.format(totalPrice)}원 결제하기'),
         ),
@@ -262,14 +286,14 @@ class _ItemCheckoutPageState extends State<ItemCheckoutPage> {
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
         validator: (value) {
-          if (value!.isEmpty) {
-            return '내용을 입력해주세요';
-          } else {
-            if (currentController == userConfirmPwdController &&
-                userPwdController.text != userConfirmPwdController.text) {
-              return '비밀번호가 일치하지 않습니다';
-            }
-          }
+          // if (value!.isEmpty) {
+          //   return '내용을 입력해주세요';
+          // } else {
+          //   if (currentController == userConfirmPwdController &&
+          //       userPwdController.text != userConfirmPwdController.text) {
+          //     return '비밀번호가 일치하지 않습니다';
+          //   }
+          // }
           return null;
         },
         controller: currentController,
